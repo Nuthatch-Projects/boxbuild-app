@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { AppSettings, DEFAULT_SETTINGS } from '@/lib/types';
+import PushSubscription from '@/components/PushSubscription';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -172,20 +173,23 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Notification Settings */}
+        {/* Push Notifications */}
+        <PushSubscription />
+
+        {/* Browser Notifications (fallback) */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
           <h3 className="font-bold text-gray-900 flex items-center gap-2">
             <Bell className="w-5 h-5 text-amber-500" />
-            Browser Notifications
+            Browser Notifications (In-App)
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-700">
-                Enable Birthday Notifications
+                Enable In-App Notifications
               </p>
               <p className="text-xs text-gray-500">
-                Get notified when someone&apos;s birthday is coming up.
+                Shows notifications when the app is open in your browser.
               </p>
             </div>
             <button

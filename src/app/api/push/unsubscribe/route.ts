@@ -1,0 +1,14 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { removePushSubscription } from '@/lib/db';
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  if (!body.endpoint) {
+    return NextResponse.json({ error: 'Endpoint required' }, { status: 400 });
+  }
+
+  await removePushSubscription(body.endpoint);
+
+  return NextResponse.json({ success: true });
+}

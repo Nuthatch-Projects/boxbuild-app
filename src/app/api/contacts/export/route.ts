@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAllContacts } from '@/lib/db';
 
 export async function GET() {
-  const contacts = getAllContacts();
+  const contacts = await getAllContacts();
 
   const headers = ['Name', 'Birthday', 'Birth Year', 'Phone', 'Email', 'Relationship', 'Notes', 'WhatsApp Notify'];
   const rows = contacts.map((c) => [

@@ -6,11 +6,11 @@ export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get('q');
 
   if (query) {
-    const contacts = searchContacts(query);
+    const contacts = await searchContacts(query);
     return NextResponse.json(contacts);
   }
 
-  const contacts = getAllContacts();
+  const contacts = await getAllContacts();
   return NextResponse.json(contacts);
 }
 
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Name and birthday are required' }, { status: 400 });
   }
 
-  const contact = createContact({
+  const contact = await createContact({
     id: uuidv4(),
     name: body.name,
     birthday: body.birthday,

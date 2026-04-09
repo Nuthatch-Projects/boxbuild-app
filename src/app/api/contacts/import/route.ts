@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   const validContacts = contacts.filter(
     (c: { name: string; birthday: string }) => c.name && c.birthday
   );
-  const count = bulkCreateContacts(validContacts);
+  const count = await bulkCreateContacts(validContacts);
 
   return NextResponse.json({ imported: count });
 }

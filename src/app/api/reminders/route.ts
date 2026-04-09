@@ -3,8 +3,8 @@ import { getAllContacts, getSettings, hasReminderBeenSent, markReminderSent } fr
 import { getDaysUntilBirthday, getUpcomingAge, composeWhatsAppMessage } from '@/lib/utils';
 
 export async function GET() {
-  const contacts = getAllContacts();
-  const settings = getSettings();
+  const contacts = await getAllContacts();
+  const settings = await getSettings();
   const today = new Date().toISOString().split('T')[0];
 
   const dueReminders: {
@@ -23,7 +23,7 @@ export async function GET() {
     for (const days of reminderDays) {
       if (daysUntil === days) {
         const reminderType = `${days}-day`;
-        if (!hasReminderBeenSent(contact.id, reminderType, today)) {
+        if (!(await hasReminderBeenSent(contact.id, reminderType, today))) {
           const age = getUpcomingAge(contact.birthday, contact.birth_year);
           const messageTemplate =
             contact.whatsapp_message || settings.whatsapp_default_message;
@@ -38,7 +38,7 @@ export async function GET() {
             whatsapp_message: message,
           });
 
-          markReminderSent(contact.id, reminderType);
+          await markReminderSent(contact.id, reminderType);
         }
       }
     }
