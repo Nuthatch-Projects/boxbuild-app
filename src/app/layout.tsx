@@ -5,17 +5,18 @@ import NotificationManager from "@/components/NotificationManager";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {
-  title: "BirthdayBuzz - Never Forget a Birthday",
+  title: "DateCue - Never Forget an Important Date",
   description:
-    "Your personal birthday reminder app with WhatsApp integration. Never miss wishing someone a happy birthday again!",
+    "Your personal date reminder app with WhatsApp integration. Never miss a birthday, anniversary, or important date again!",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "BirthdayBuzz",
+    title: "DateCue",
   },
   icons: {
     icon: [
+      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],

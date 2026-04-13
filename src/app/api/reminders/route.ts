@@ -18,7 +18,7 @@ export async function GET() {
 
   for (const contact of contacts) {
     const daysUntil = getDaysUntilBirthday(contact.birthday);
-    const reminderDays: number[] = JSON.parse(contact.reminder_days || '[0,1,7]');
+    const reminderDays: number[] = JSON.parse(contact.reminder_days || '[0,1,3]');
 
     for (const days of reminderDays) {
       if (daysUntil === days) {

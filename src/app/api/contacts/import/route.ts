@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     notes: c.notes || '',
     notify_whatsapp: c.notify_whatsapp === 'Yes' || c.notify_whatsapp === 'true',
     whatsapp_message: c.whatsapp_message || '',
-    reminder_days: JSON.stringify(c.reminder_days || [0, 1, 7]),
+    reminder_days: JSON.stringify(c.reminder_days || [0, 1, 3]),
   }));
 
   const validContacts = contacts.filter(

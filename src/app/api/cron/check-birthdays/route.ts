@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   for (const contact of contacts) {
     const daysUntil = getDaysUntilBirthday(contact.birthday);
-    const reminderDays: number[] = JSON.parse(contact.reminder_days || '[0,1,7]');
+    const reminderDays: number[] = JSON.parse(contact.reminder_days || '[0,1,3]');
     const eventInfo = getEventTypeInfo(contact.event_type);
     const label = contact.event_label || eventInfo.label;
 

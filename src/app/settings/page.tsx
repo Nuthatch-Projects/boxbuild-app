@@ -98,7 +98,7 @@ export default function SettingsPage() {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
         setSettings({ ...settings, notification_enabled: true });
-        new Notification('BirthdayBuzz', {
+        new Notification('DateCue', {
           body: 'Notifications are now enabled!',
           icon: '/favicon.ico',
         });
@@ -122,7 +122,7 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="text-gray-500 mt-1">
-          Configure your birthday reminder preferences.
+          Configure your reminder preferences.
         </p>
       </div>
 

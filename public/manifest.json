@@ -1,7 +1,7 @@
 {
-  "name": "BirthdayBuzz",
-  "short_name": "BirthdayBuzz",
-  "description": "Never forget a birthday again. Personal birthday reminder with WhatsApp integration.",
+  "name": "DateCue",
+  "short_name": "DateCue",
+  "description": "Never forget an important date. Personal reminder app for birthdays, anniversaries, and more.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8f9fb",

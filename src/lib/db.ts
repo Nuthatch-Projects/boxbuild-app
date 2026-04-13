@@ -17,7 +17,7 @@ export async function initializeDb(): Promise<void> {
       notes TEXT DEFAULT '',
       notify_whatsapp BOOLEAN DEFAULT FALSE,
       whatsapp_message TEXT DEFAULT '',
-      reminder_days TEXT DEFAULT '[0,1,7]',
+      reminder_days TEXT DEFAULT '[0,1,3]',
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     )
@@ -96,7 +96,7 @@ function rowToContact(row: Record<string, unknown>): Contact {
     notes: (row.notes as string) || '',
     notify_whatsapp: Boolean(row.notify_whatsapp),
     whatsapp_message: (row.whatsapp_message as string) || '',
-    reminder_days: (row.reminder_days as string) || '[0,1,7]',
+    reminder_days: (row.reminder_days as string) || '[0,1,3]',
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };

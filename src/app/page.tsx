@@ -54,7 +54,7 @@ export default function Dashboard() {
       <div className="p-6 md:p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome to <span className="gradient-text">BirthdayBuzz</span>
+            Welcome to <span className="gradient-text">DateCue</span>
           </h1>
           <p className="text-gray-500 mt-1">
             Your personal date &amp; reminder assistant

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'birthdaybuzz-v1';
+const CACHE_NAME = 'datecue-v1';
 const STATIC_ASSETS = [
   '/',
   '/contacts',
@@ -64,7 +64,7 @@ self.addEventListener('fetch', (event) => {
 
 // Push notification handler
 self.addEventListener('push', (event) => {
-  let data = { title: 'BirthdayBuzz', body: 'You have a birthday reminder!' };
+  let data = { title: 'DateCue', body: 'You have a reminder!' };
 
   if (event.data) {
     try {

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     notes: body.notes || '',
     notify_whatsapp: body.notify_whatsapp || false,
     whatsapp_message: body.whatsapp_message || '',
-    reminder_days: JSON.stringify(body.reminder_days || [0, 1, 7]),
+    reminder_days: JSON.stringify(body.reminder_days || [0, 1, 3]),
   });
 
   return NextResponse.json(contact, { status: 201 });

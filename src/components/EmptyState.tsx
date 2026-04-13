@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { UserPlus, Cake } from 'lucide-react';
+import { UserPlus, CalendarDays } from 'lucide-react';
 
 interface EmptyStateProps {
   title?: string;
@@ -9,13 +9,13 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({
-  title = 'No birthdays yet',
-  description = "Add your first contact to start tracking birthdays. You'll never forget one again!",
+  title = 'No dates tracked yet',
+  description = "Add your first contact to start tracking important dates. You'll never forget one again!",
 }: EmptyStateProps) {
   return (
     <div className="text-center py-16 px-4">
       <div className="w-20 h-20 bg-gradient-to-br from-pink-100 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-        <Cake className="w-10 h-10 text-purple-400" />
+        <CalendarDays className="w-10 h-10 text-purple-400" />
       </div>
       <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
       <p className="text-gray-500 mb-8 max-w-md mx-auto">{description}</p>

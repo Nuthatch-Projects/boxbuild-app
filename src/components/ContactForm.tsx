@@ -41,7 +41,7 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
     whatsapp_message: contact?.whatsapp_message || '',
     reminder_days: contact?.reminder_days
       ? JSON.parse(contact.reminder_days)
-      : [0, 1, 7],
+      : [0, 1, 3],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

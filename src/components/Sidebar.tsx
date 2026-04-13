@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Settings,
   UserPlus,
-  Cake,
   Download,
 } from 'lucide-react';
 
@@ -29,12 +28,12 @@ export default function Sidebar() {
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 min-h-screen">
         <div className="p-6 border-b border-gray-100">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <Cake className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden">
+              <img src="/icons/icon-96x96.png" alt="DateCue" className="w-10 h-10" />
             </div>
             <div>
               <h1 className="font-bold text-gray-900 text-lg leading-tight">
-                BirthdayBuzz
+                DateCue
               </h1>
               <p className="text-xs text-gray-500">Never forget again</p>
             </div>
