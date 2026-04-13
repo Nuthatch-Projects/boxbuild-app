@@ -1,5 +1,5 @@
 import { sql } from '@vercel/postgres';
-import { AppSettings, Contact, DEFAULT_SETTINGS } from './types';
+import { AppSettings, Contact, DEFAULT_SETTINGS, EventType } from './types';
 
 export async function initializeDb(): Promise<void> {
   await sql`
@@ -8,6 +8,8 @@ export async function initializeDb(): Promise<void> {
       name TEXT NOT NULL,
       birthday TEXT NOT NULL,
       birth_year INTEGER,
+      event_type TEXT DEFAULT 'birthday',
+      event_label TEXT DEFAULT 'Birthday',
       phone TEXT DEFAULT '',
       email TEXT DEFAULT '',
       photo_url TEXT DEFAULT '',
@@ -19,6 +21,15 @@ export async function initializeDb(): Promise<void> {
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     )
+  `;
+
+  // Add event_type and event_label columns if they don't exist (migration for existing DBs)
+  await sql`
+    DO $$ BEGIN
+      ALTER TABLE contacts ADD COLUMN IF NOT EXISTS event_type TEXT DEFAULT 'birthday';
+      ALTER TABLE contacts ADD COLUMN IF NOT EXISTS event_label TEXT DEFAULT 'Birthday';
+    EXCEPTION WHEN others THEN NULL;
+    END $$
   `;
 
   await sql`
@@ -76,6 +87,8 @@ function rowToContact(row: Record<string, unknown>): Contact {
     name: row.name as string,
     birthday: row.birthday as string,
     birth_year: row.birth_year as number | null,
+    event_type: (row.event_type as EventType) || 'birthday',
+    event_label: (row.event_label as string) || 'Birthday',
     phone: (row.phone as string) || '',
     email: (row.email as string) || '',
     photo_url: (row.photo_url as string) || '',
@@ -106,8 +119,8 @@ export async function getContactById(id: string): Promise<Contact | undefined> {
 export async function createContact(contact: Omit<Contact, 'created_at' | 'updated_at'>): Promise<Contact> {
   await ensureInit();
   await sql`
-    INSERT INTO contacts (id, name, birthday, birth_year, phone, email, photo_url, relationship, notes, notify_whatsapp, whatsapp_message, reminder_days)
-    VALUES (${contact.id}, ${contact.name}, ${contact.birthday}, ${contact.birth_year}, ${contact.phone}, ${contact.email}, ${contact.photo_url}, ${contact.relationship}, ${contact.notes}, ${contact.notify_whatsapp}, ${contact.whatsapp_message}, ${contact.reminder_days})
+    INSERT INTO contacts (id, name, birthday, birth_year, event_type, event_label, phone, email, photo_url, relationship, notes, notify_whatsapp, whatsapp_message, reminder_days)
+    VALUES (${contact.id}, ${contact.name}, ${contact.birthday}, ${contact.birth_year}, ${contact.event_type}, ${contact.event_label}, ${contact.phone}, ${contact.email}, ${contact.photo_url}, ${contact.relationship}, ${contact.notes}, ${contact.notify_whatsapp}, ${contact.whatsapp_message}, ${contact.reminder_days})
   `;
   return (await getContactById(contact.id))!;
 }
@@ -125,6 +138,8 @@ export async function updateContact(
       name = ${updated.name},
       birthday = ${updated.birthday},
       birth_year = ${updated.birth_year},
+      event_type = ${updated.event_type},
+      event_label = ${updated.event_label},
       phone = ${updated.phone},
       email = ${updated.email},
       photo_url = ${updated.photo_url},
@@ -227,10 +242,11 @@ export async function bulkCreateContacts(contacts: Omit<Contact, 'created_at' | 
   let count = 0;
   for (const c of contacts) {
     await sql`
-      INSERT INTO contacts (id, name, birthday, birth_year, phone, email, photo_url, relationship, notes, notify_whatsapp, whatsapp_message, reminder_days)
-      VALUES (${c.id}, ${c.name}, ${c.birthday}, ${c.birth_year}, ${c.phone}, ${c.email}, ${c.photo_url}, ${c.relationship}, ${c.notes}, ${c.notify_whatsapp}, ${c.whatsapp_message}, ${c.reminder_days})
+      INSERT INTO contacts (id, name, birthday, birth_year, event_type, event_label, phone, email, photo_url, relationship, notes, notify_whatsapp, whatsapp_message, reminder_days)
+      VALUES (${c.id}, ${c.name}, ${c.birthday}, ${c.birth_year}, ${c.event_type}, ${c.event_label}, ${c.phone}, ${c.email}, ${c.photo_url}, ${c.relationship}, ${c.notes}, ${c.notify_whatsapp}, ${c.whatsapp_message}, ${c.reminder_days})
       ON CONFLICT (id) DO UPDATE SET
         name = ${c.name}, birthday = ${c.birthday}, birth_year = ${c.birth_year},
+        event_type = ${c.event_type}, event_label = ${c.event_label},
         phone = ${c.phone}, email = ${c.email}, photo_url = ${c.photo_url},
         relationship = ${c.relationship}, notes = ${c.notes},
         notify_whatsapp = ${c.notify_whatsapp}, whatsapp_message = ${c.whatsapp_message},

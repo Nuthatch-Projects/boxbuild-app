@@ -14,8 +14,8 @@ import {
   subMonths,
   parseISO,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, Cake } from 'lucide-react';
-import { Contact } from '@/lib/types';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Contact, getEventTypeInfo } from '@/lib/types';
 import Link from 'next/link';
 
 interface CalendarProps {
@@ -105,7 +105,7 @@ export default function Calendar({ contacts }: CalendarProps) {
                   {format(day, 'd')}
                 </span>
                 {birthdays.length > 0 && (
-                  <Cake className="w-3 h-3 text-pink-400" />
+                  <span className="text-xs">{getEventTypeInfo(birthdays[0].event_type).icon}</span>
                 )}
               </div>
               <div className="space-y-0.5">

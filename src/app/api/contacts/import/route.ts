@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
     name: c.name || 'Unknown',
     birthday: c.birthday || '',
     birth_year: c.birth_year ? parseInt(c.birth_year) : null,
+    event_type: c.event_type || 'birthday',
+    event_label: c.event_label || 'Birthday',
     phone: c.phone || '',
     email: c.email || '',
     photo_url: c.photo_url || '',

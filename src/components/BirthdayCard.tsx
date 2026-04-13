@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Cake, MessageCircle, Clock, Star } from 'lucide-react';
-import { BirthdayEvent } from '@/lib/types';
+import { MessageCircle, Clock, Star } from 'lucide-react';
+import { BirthdayEvent, getEventTypeInfo, getEventTypeColor, getYearsLabel } from '@/lib/types';
 import {
   formatBirthday,
   getDaysUntilText,
@@ -20,6 +20,8 @@ export default function BirthdayCard({ event, compact, onWhatsApp }: BirthdayCar
   const { contact, daysUntil, age, zodiacEmoji, zodiacSign } = event;
   const isToday = daysUntil === 0;
   const isSoon = daysUntil > 0 && daysUntil <= 7;
+  const eventInfo = getEventTypeInfo(contact.event_type);
+  const eventColorClass = getEventTypeColor(contact.event_type);
 
   if (compact) {
     return (
@@ -51,14 +53,17 @@ export default function BirthdayCard({ event, compact, onWhatsApp }: BirthdayCar
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-900 text-sm truncate">
             {contact.name}
-            {isToday && ' \uD83C\uDF82'}
+            {isToday && ` ${eventInfo.icon}`}
           </p>
           <p className="text-xs text-gray-500">
             {formatBirthday(contact.birthday)}
-            {age !== null && ` \u00B7 Turning ${age}`}
+            {age !== null && ` · ${getYearsLabel(contact.event_type, age)}`}
           </p>
         </div>
-        <div className="text-right flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${eventColorClass}`}>
+            {contact.event_label || eventInfo.label}
+          </span>
           <span
             className={`text-xs font-semibold px-2 py-1 rounded-full ${
               isToday
@@ -105,12 +110,12 @@ export default function BirthdayCard({ event, compact, onWhatsApp }: BirthdayCar
           <div>
             <h3 className="font-bold text-gray-900 text-lg">
               {contact.name}
-              {isToday && ' \uD83C\uDF89'}
+              {isToday && ` ${eventInfo.icon}`}
             </h3>
             <p className="text-sm text-gray-500 flex items-center gap-1">
-              <Cake className="w-3.5 h-3.5" />
+              <span>{eventInfo.icon}</span>
               {formatBirthday(contact.birthday)}
-              {age !== null && ` \u00B7 Turning ${age}`}
+              {age !== null && ` · ${getYearsLabel(contact.event_type, age)}`}
             </p>
           </div>
         </div>
@@ -128,6 +133,9 @@ export default function BirthdayCard({ event, compact, onWhatsApp }: BirthdayCar
       </div>
 
       <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${eventColorClass}`}>
+          {contact.event_label || eventInfo.label}
+        </span>
         <span
           className={`text-xs px-2.5 py-1 rounded-full font-medium ${getRelationshipColor(
             contact.relationship
@@ -135,10 +143,12 @@ export default function BirthdayCard({ event, compact, onWhatsApp }: BirthdayCar
         >
           {contact.relationship}
         </span>
-        <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium flex items-center gap-1">
-          <Star className="w-3 h-3" />
-          {zodiacEmoji} {zodiacSign}
-        </span>
+        {contact.event_type === 'birthday' && (
+          <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium flex items-center gap-1">
+            <Star className="w-3 h-3" />
+            {zodiacEmoji} {zodiacSign}
+          </span>
+        )}
         {contact.notify_whatsapp && (
           <span className="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-medium">
             WhatsApp

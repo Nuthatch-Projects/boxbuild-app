@@ -14,8 +14,9 @@ import {
   MessageCircle,
   Bell,
   Image,
+  Sparkles,
 } from 'lucide-react';
-import { Contact, ContactFormData, RELATIONSHIP_OPTIONS, REMINDER_OPTIONS } from '@/lib/types';
+import { Contact, ContactFormData, RELATIONSHIP_OPTIONS, REMINDER_OPTIONS, EVENT_TYPE_OPTIONS, EventType, getEventTypeInfo } from '@/lib/types';
 
 interface ContactFormProps {
   contact?: Contact;
@@ -29,6 +30,8 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
     name: contact?.name || '',
     birthday: contact?.birthday || '',
     birth_year: contact?.birth_year || null,
+    event_type: contact?.event_type || 'birthday',
+    event_label: contact?.event_label || 'Birthday',
     phone: contact?.phone || '',
     email: contact?.email || '',
     photo_url: contact?.photo_url || '',
@@ -81,19 +84,73 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
     }));
   };
 
+  const handleEventTypeChange = (eventType: EventType) => {
+    const info = getEventTypeInfo(eventType);
+    setForm({
+      ...form,
+      event_type: eventType,
+      event_label: eventType === 'custom' ? form.event_label : info.defaultLabel,
+    });
+  };
+
+  const selectedEventInfo = getEventTypeInfo(form.event_type);
+  const dateLabel = form.event_type === 'birthday' ? 'Date of Birth' :
+                    form.event_type === 'anniversary' ? 'Anniversary Date' :
+                    form.event_type === 'custom' ? 'Date' :
+                    `${form.event_label} Date`;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      {/* Event Type */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+        <h3 className="font-bold text-gray-900 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-purple-500" />
+          What are you tracking?
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {EVENT_TYPE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => handleEventTypeChange(opt.value)}
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-sm font-medium transition-all ${
+                form.event_type === opt.value
+                  ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-300'
+                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <span className="text-xl">{opt.icon}</span>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        {(form.event_type === 'custom' || form.event_type === 'anniversary') && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Custom Label
+            </label>
+            <input
+              type="text"
+              value={form.event_label}
+              onChange={(e) => setForm({ ...form, event_label: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-gray-900"
+              placeholder={form.event_type === 'anniversary' ? 'e.g. Wedding Anniversary' : 'e.g. First Day at Work'}
+            />
+          </div>
+        )}
+      </div>
+
       {/* Basic Info */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
         <h3 className="font-bold text-gray-900 flex items-center gap-2">
           <User className="w-5 h-5 text-purple-500" />
-          Basic Information
+          {form.event_type === 'anniversary' ? 'Details' : 'Person Details'}
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Full Name *
+              {form.event_type === 'anniversary' ? 'Name / Couple *' : 'Full Name *'}
             </label>
             <input
               type="text"
@@ -101,14 +158,14 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-gray-900"
-              placeholder="e.g. Jane Doe"
+              placeholder={form.event_type === 'anniversary' ? 'e.g. Mom & Dad' : 'e.g. Jane Doe'}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               <Calendar className="w-3.5 h-3.5 inline mr-1" />
-              Birthday *
+              {dateLabel} *
             </label>
             <input
               type="date"
@@ -209,7 +266,7 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
           Reminders
         </h3>
         <p className="text-sm text-gray-500">
-          Choose when you want to be reminded about this birthday.
+          Choose when you want to be reminded about this {selectedEventInfo.label.toLowerCase()}.
         </p>
         <div className="flex flex-wrap gap-2">
           {REMINDER_OPTIONS.map((opt) => (
@@ -250,7 +307,7 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
             <div className="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></div>
           </div>
           <span className="text-sm font-medium text-gray-700">
-            Notify family WhatsApp group on their birthday
+            Notify family WhatsApp group on the day
           </span>
         </label>
 
@@ -283,7 +340,7 @@ export default function ContactForm({ contact, onSave }: ContactFormProps) {
           className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 shadow-lg shadow-purple-200"
         >
           <Save className="w-4 h-4" />
-          {saving ? 'Saving...' : contact ? 'Update Contact' : 'Add Contact'}
+          {saving ? 'Saving...' : contact ? 'Update' : `Add ${selectedEventInfo.label}`}
         </button>
         <button
           type="button"

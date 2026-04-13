@@ -26,6 +26,8 @@ export async function POST(request: NextRequest) {
     name: body.name,
     birthday: body.birthday,
     birth_year: body.birth_year || null,
+    event_type: body.event_type || 'birthday',
+    event_label: body.event_label || 'Birthday',
     phone: body.phone || '',
     email: body.email || '',
     photo_url: body.photo_url || '',

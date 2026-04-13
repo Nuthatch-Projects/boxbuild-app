@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAllContacts, hasReminderBeenSent, markReminderSent } from '@/lib/db';
 import { getDaysUntilBirthday, getUpcomingAge } from '@/lib/utils';
 import { sendPushToAll, PushPayload } from '@/lib/push';
+import { getEventTypeInfo, getYearsLabel } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
   // Verify cron secret to prevent unauthorized access
@@ -19,6 +20,8 @@ export async function GET(request: NextRequest) {
   for (const contact of contacts) {
     const daysUntil = getDaysUntilBirthday(contact.birthday);
     const reminderDays: number[] = JSON.parse(contact.reminder_days || '[0,1,7]');
+    const eventInfo = getEventTypeInfo(contact.event_type);
+    const label = contact.event_label || eventInfo.label;
 
     for (const days of reminderDays) {
       if (daysUntil === days) {
@@ -32,31 +35,38 @@ export async function GET(request: NextRequest) {
         let body: string;
 
         if (days === 0) {
-          title = `\uD83C\uDF82 Happy Birthday ${contact.name}!`;
-          body = age !== null
-            ? `${contact.name} is turning ${age} today! Don't forget to wish them!`
-            : `It's ${contact.name}'s birthday today! Send them your wishes!`;
+          if (contact.event_type === 'birthday') {
+            title = `${eventInfo.icon} Happy Birthday ${contact.name}!`;
+            body = age !== null
+              ? `${contact.name} is turning ${age} today! Don't forget to wish them!`
+              : `It's ${contact.name}'s birthday today! Send them your wishes!`;
+          } else {
+            title = `${eventInfo.icon} ${label} — ${contact.name}`;
+            body = age !== null
+              ? `${contact.name}'s ${label.toLowerCase()} is today! (${getYearsLabel(contact.event_type, age)})`
+              : `${contact.name}'s ${label.toLowerCase()} is today!`;
+          }
         } else if (days === 1) {
-          title = `\uD83D\uDD14 Birthday Tomorrow`;
+          title = `${eventInfo.icon} ${label} Tomorrow`;
           body = age !== null
-            ? `${contact.name} turns ${age} tomorrow — time to prepare!`
-            : `${contact.name}'s birthday is tomorrow!`;
+            ? `${contact.name} — ${getYearsLabel(contact.event_type, age)} tomorrow!`
+            : `${contact.name}'s ${label.toLowerCase()} is tomorrow!`;
         } else {
-          title = `\uD83D\uDCC5 Birthday in ${days} days`;
+          title = `${eventInfo.icon} ${label} in ${days} days`;
           body = age !== null
-            ? `${contact.name} turns ${age} in ${days} days`
-            : `${contact.name}'s birthday is in ${days} days`;
+            ? `${contact.name} — ${getYearsLabel(contact.event_type, age)} in ${days} days`
+            : `${contact.name}'s ${label.toLowerCase()} is in ${days} days`;
         }
 
         notifications.push({
           title,
           body,
-          tag: `birthday-${contact.id}-${days}`,
+          tag: `event-${contact.id}-${days}`,
           url: `/contacts/${contact.id}`,
           contactId: contact.id,
           requireInteraction: days === 0,
           actions: days === 0
-            ? [{ action: 'send-wish', title: 'Send Birthday Wish' }]
+            ? [{ action: 'send-wish', title: `Send ${label} Wish` }]
             : [],
         });
 

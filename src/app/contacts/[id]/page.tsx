@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Edit3,
   Trash2,
-  Cake,
   Phone,
   Mail,
   Star,
@@ -16,7 +15,7 @@ import {
   Clock,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Contact, AppSettings } from '@/lib/types';
+import { Contact, AppSettings, getEventTypeInfo, getEventTypeColor, getYearsLabel } from '@/lib/types';
 import { toBirthdayEvent, formatFullBirthday, getInitials, getDaysUntilText, getRelationshipColor, getAge } from '@/lib/utils';
 import ContactForm from '@/components/ContactForm';
 import WhatsAppComposer from '@/components/WhatsAppComposer';
@@ -99,6 +98,20 @@ export default function ContactDetailPage({
   const isToday = event.daysUntil === 0;
   const currentAge = getAge(contact.birthday, contact.birth_year);
   const reminderDays: number[] = JSON.parse(contact.reminder_days || '[0,1,7]');
+  const eventInfo = getEventTypeInfo(contact.event_type);
+  const eventColorClass = getEventTypeColor(contact.event_type);
+
+  const dateLabel = contact.event_type === 'birthday' ? 'Birthday' :
+                    contact.event_type === 'anniversary' ? 'Anniversary Date' :
+                    contact.event_label || eventInfo.label;
+
+  const ageLabel = contact.event_type === 'birthday'
+    ? (currentAge !== null ? `${currentAge} years old` : null)
+    : (currentAge !== null ? getYearsLabel(contact.event_type, currentAge) : null);
+
+  const countdownExtra = event.age !== null
+    ? ` (${getYearsLabel(contact.event_type, event.age)})`
+    : '';
 
   return (
     <div className="p-6 md:p-8 max-w-4xl">
@@ -145,9 +158,12 @@ export default function ContactDetailPage({
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   {contact.name}
-                  {isToday && ' \uD83C\uDF89'}
+                  {isToday && ` ${eventInfo.icon}`}
                 </h1>
                 <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  <span className={`text-sm px-3 py-1 rounded-full font-medium ${eventColorClass}`}>
+                    {eventInfo.icon} {contact.event_label || eventInfo.label}
+                  </span>
                   <span
                     className={`text-sm px-3 py-1 rounded-full font-medium ${getRelationshipColor(
                       contact.relationship
@@ -155,10 +171,12 @@ export default function ContactDetailPage({
                   >
                     {contact.relationship}
                   </span>
-                  <span className="text-sm px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5" />
-                    {event.zodiacEmoji} {event.zodiacSign}
-                  </span>
+                  {contact.event_type === 'birthday' && (
+                    <span className="text-sm px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5" />
+                      {event.zodiacEmoji} {event.zodiacSign}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -183,10 +201,10 @@ export default function ContactDetailPage({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-pink-50 rounded-xl flex items-center justify-center">
-                  <Cake className="w-5 h-5 text-pink-500" />
+                  <span className="text-lg">{eventInfo.icon}</span>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Birthday</p>
+                  <p className="text-xs text-gray-500">{dateLabel}</p>
                   <p className="font-semibold text-gray-900">
                     {formatFullBirthday(contact.birthday, contact.birth_year)}
                   </p>
@@ -201,20 +219,22 @@ export default function ContactDetailPage({
                   <p className="text-xs text-gray-500">Countdown</p>
                   <p className="font-semibold text-gray-900">
                     {getDaysUntilText(event.daysUntil)}
-                    {event.age !== null && ` (turning ${event.age})`}
+                    {countdownExtra}
                   </p>
                 </div>
               </div>
 
-              {currentAge !== null && (
+              {ageLabel && (
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-amber-500" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Current Age</p>
+                    <p className="text-xs text-gray-500">
+                      {contact.event_type === 'birthday' ? 'Current Age' : 'Duration'}
+                    </p>
                     <p className="font-semibold text-gray-900">
-                      {currentAge} years old
+                      {ageLabel}
                     </p>
                   </div>
                 </div>
@@ -287,14 +307,14 @@ export default function ContactDetailPage({
           </h3>
           <p className="text-sm text-gray-600 mb-4">
             A message will be composed for your family WhatsApp group on{' '}
-            {contact.name}&apos;s birthday.
+            {contact.name}&apos;s {(contact.event_label || eventInfo.label).toLowerCase()}.
           </p>
           <button
             onClick={() => setShowWhatsApp(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-green-500 text-white rounded-xl text-sm font-medium hover:bg-green-600 transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
-            Preview & Send Birthday Message
+            Preview &amp; Send Message
           </button>
         </div>
       )}

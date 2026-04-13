@@ -4,11 +4,13 @@ import { getAllContacts } from '@/lib/db';
 export async function GET() {
   const contacts = await getAllContacts();
 
-  const headers = ['Name', 'Birthday', 'Birth Year', 'Phone', 'Email', 'Relationship', 'Notes', 'WhatsApp Notify'];
+  const headers = ['Name', 'Birthday', 'Birth Year', 'Event Type', 'Event Label', 'Phone', 'Email', 'Relationship', 'Notes', 'WhatsApp Notify'];
   const rows = contacts.map((c) => [
     c.name,
     c.birthday,
     c.birth_year || '',
+    c.event_type || 'birthday',
+    c.event_label || 'Birthday',
     c.phone,
     c.email,
     c.relationship,
@@ -24,7 +26,7 @@ export async function GET() {
   return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv',
-      'Content-Disposition': 'attachment; filename="birthdays.csv"',
+      'Content-Disposition': 'attachment; filename="events.csv"',
     },
   });
 }

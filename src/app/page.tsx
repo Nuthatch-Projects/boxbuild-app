@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Cake, Users, CalendarDays, Gift, PartyPopper, Clock, UserPlus } from 'lucide-react';
+import { Users, CalendarDays, Gift, PartyPopper, Clock, UserPlus } from 'lucide-react';
 import Link from 'next/link';
-import { Contact, AppSettings } from '@/lib/types';
+import { Contact, AppSettings, getEventTypeInfo } from '@/lib/types';
 import { toBirthdayEvent } from '@/lib/utils';
 import BirthdayCard from '@/components/BirthdayCard';
 import ConfettiEffect from '@/components/ConfettiEffect';
@@ -36,10 +36,10 @@ export default function Dashboard() {
     [contacts]
   );
 
-  const todayBirthdays = events.filter((e) => e.daysUntil === 0);
+  const todayEvents = events.filter((e) => e.daysUntil === 0);
   const thisWeek = events.filter((e) => e.daysUntil > 0 && e.daysUntil <= 7);
   const thisMonth = events.filter((e) => e.daysUntil > 7 && e.daysUntil <= 30);
-  const hasTodayBirthdays = todayBirthdays.length > 0;
+  const hasTodayEvents = todayEvents.length > 0;
 
   if (loading) {
     return (
@@ -57,7 +57,7 @@ export default function Dashboard() {
             Welcome to <span className="gradient-text">BirthdayBuzz</span>
           </h1>
           <p className="text-gray-500 mt-1">
-            Your personal birthday reminder assistant
+            Your personal date &amp; reminder assistant
           </p>
         </div>
         <EmptyState />
@@ -65,28 +65,30 @@ export default function Dashboard() {
     );
   }
 
+  const nextEventLabel = events.length > 0
+    ? `Next up: ${events[0].contact.name} (${getEventTypeInfo(events[0].contact.event_type).label}) in ${events[0].daysUntil} day${events[0].daysUntil > 1 ? 's' : ''}`
+    : 'No upcoming events';
+
   return (
     <div className="p-6 md:p-8 max-w-6xl">
-      <ConfettiEffect active={hasTodayBirthdays} />
+      <ConfettiEffect active={hasTodayEvents} />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {hasTodayBirthdays ? (
+            {hasTodayEvents ? (
               <>
-                <span className="gradient-text">Happy Birthday</span> Day!
+                <span className="gradient-text">Celebration</span> Day!
               </>
             ) : (
               <span className="gradient-text">Dashboard</span>
             )}
           </h1>
           <p className="text-gray-500 mt-1">
-            {hasTodayBirthdays
-              ? `${todayBirthdays.length} birthday${todayBirthdays.length > 1 ? 's' : ''} today!`
-              : events.length > 0
-              ? `Next birthday: ${events[0].contact.name} in ${events[0].daysUntil} day${events[0].daysUntil > 1 ? 's' : ''}`
-              : 'No upcoming birthdays'}
+            {hasTodayEvents
+              ? `${todayEvents.length} event${todayEvents.length > 1 ? 's' : ''} today!`
+              : nextEventLabel}
           </p>
         </div>
         <SearchBar />
@@ -101,17 +103,17 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{contacts.length}</p>
-          <p className="text-xs text-gray-500">Total Contacts</p>
+          <p className="text-xs text-gray-500">Total Events</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
-              <Cake className="w-5 h-5 text-pink-600" />
+              <span className="text-lg">🎉</span>
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">
-            {todayBirthdays.length}
+            {todayEvents.length}
           </p>
           <p className="text-xs text-gray-500">Today</p>
         </div>
@@ -137,17 +139,17 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Today's Birthdays */}
-      {hasTodayBirthdays && (
+      {/* Today's Events */}
+      {hasTodayEvents && (
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <PartyPopper className="w-5 h-5 text-pink-500" />
             <h2 className="text-xl font-bold text-gray-900">
-              Today&apos;s Birthdays
+              Today&apos;s Events
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {todayBirthdays.map((event, i) => (
+            {todayEvents.map((event, i) => (
               <div
                 key={event.contact.id}
                 className={`animate-slide-up stagger-${i + 1} birthday-glow rounded-2xl`}
